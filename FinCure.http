@@ -1,0 +1,6 @@
+@FinCure_HostAddress = http://localhost:5028
+
+GET {{FinCure_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
