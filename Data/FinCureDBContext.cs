@@ -13,5 +13,6 @@ namespace FinCure.Data
 
         public DbSet<Income> Incomes { get; set; }
         public DbSet<Expense> Expenses { get; set; }
+        public DbSet<Investment> Investments { get; set; }
     }
 }

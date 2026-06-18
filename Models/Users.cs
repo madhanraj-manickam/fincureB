@@ -10,6 +10,8 @@ namespace FinCure.Models
         public String? Password { get; set; }
         public String? Email { get; set; }
         public long PhoneNumber { get; set; }
-        
+
+        public ICollection<Investment>? Investments { get; set; }
+
     }
 }

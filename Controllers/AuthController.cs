@@ -2,10 +2,12 @@
 using FinCure.DTOs.AuthDTO;
 using FinCure.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.Extensions.Caching.Memory;
 
 
 namespace FinCure.Controllers
@@ -16,10 +18,13 @@ namespace FinCure.Controllers
     {
         private readonly FinCureDBContext _context;
         private readonly IConfiguration _configuration;
-        public AuthController(FinCureDBContext context,IConfiguration configuration)
+        private readonly IMemoryCache _cache;
+
+        public AuthController(FinCureDBContext context, IConfiguration configuration, IMemoryCache cache)
         {
             _context = context;
             _configuration = configuration;
+            _cache = cache;
         }
 
         // Register a new User
@@ -68,6 +73,33 @@ namespace FinCure.Controllers
                     phoneNumber = user.PhoneNumber
                 }
             });
+        }
+
+        [Authorize]
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            string authHeader = Request.Headers["Authorization"].ToString();
+
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+            {
+                return BadRequest("Invalid request. Missing or malformed token.");
+            }
+
+            string token = authHeader.Substring("Bearer ".Length).Trim();
+
+            // Since your token lifetime is explicitly set to 1 Hour in CreateToken(),
+            // cache it for 1 hour. Once 1 hour passes, the token naturally expires anyway,
+            // so it will automatically clear itself from memory cache storage.
+            var cacheOptions = new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
+            };
+
+            // Add the token to the server blacklist
+            _cache.Set(token, true, cacheOptions);
+
+            return Ok(new { message = "Logged out successfully. Token has been permanently invalidated on the server." });
         }
         private string CreateToken(Users user)
         {

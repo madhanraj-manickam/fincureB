@@ -21,7 +21,7 @@ namespace FinCure.Services
         {
             var income = new Income
             {
-                Amount = dto.Amount,
+                Amount = dto.Amount,                  // can use mapper to overcome manual assigninig
                 Category = dto.Category,
                
                 Date = DateTime.UtcNow,
@@ -35,8 +35,21 @@ namespace FinCure.Services
 
         public async Task<List<IncomeResponseDto>> GetAllAsync(int userId)
         {
-            var incomes = await _incomeRepository.GetAllByUserIdAsync(userId);
-            return incomes.Select(MapToDto).ToList();
+            try
+            {
+                var incomes = await _incomeRepository.GetAllByUserIdAsync(userId);
+
+                if (incomes == null || !incomes.Any())
+                {
+                    throw new Exception("No income records found.");
+                }
+
+                return incomes.Select(MapToDto).ToList();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         public async Task<IncomeResponseDto?> GetByIdAsync(int id, int userId)

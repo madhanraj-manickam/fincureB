@@ -1,9 +1,12 @@
 ﻿using FinCure.DTOs.Income;
 using FinCure.DTOs.IncomeDTO;
+using FinCure.Models;
 using FinCure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+
+
 
 namespace FinCure.Controllers
 {
@@ -30,50 +33,69 @@ namespace FinCure.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllIncome()
         {
-            int userId = GetUserId();
-            var result = await _incomeService.GetAllAsync(userId);
-            return Ok(result);
+            try
+            {
+                int userId = GetUserId();
+
+                var result = await _incomeService.GetAllAsync(userId);
+
+                return Ok(result);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new
+                {
+                    Message = ex.Message
+                });
+            }
         }
         [HttpGet("category/{category}")]
-public async Task<IActionResult> GetByCategory(string category)
-{
-    int userId = GetUserId();
-    var result = await _incomeService.GetByCategoryAsync(userId, category);
-    return Ok(result);
-}
+        public async Task<IActionResult> GetByCategory(string category)
+        {
+            int userId = GetUserId();
+            var result = await _incomeService.GetByCategoryAsync(userId, category);
+            return Ok(result);
+        }
 
-[HttpPut("{id}")]
-public async Task<IActionResult> UpdateIncome(int id, IncomeUpdateDto dto)
-{
-    int userId = GetUserId();
-    var result = await _incomeService.UpdateAsync(id, userId, dto);
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateIncome(int id, IncomeUpdateDto dto)
+        {
+            int userId = GetUserId();
+            var result = await _incomeService.UpdateAsync(id, userId, dto);
 
-    if (result == null)
-        return NotFound();
+            if (result == null)
+                return NotFound();
 
-    return Ok(result);
-}
+            return Ok(result);
+        }
 
-[HttpDelete("{id}")]
-public async Task<IActionResult> DeleteIncome(int id)
-{
-    int userId = GetUserId();
-    bool deleted = await _incomeService.DeleteAsync(id, userId);
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteIncome(int id)
+        {
+            int userId = GetUserId();
+            bool deleted = await _incomeService.DeleteAsync(id, userId);
 
-    if (!deleted)
-        return NotFound();
+            if (!deleted)
+                return NotFound();
 
-    return Ok(new { message = "Income deleted successfully" });
-}
+            return Ok(new { message = "Income deleted successfully" });
+        }
 
-private int GetUserId()
-{
-    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        private int GetUserId()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-    if (userIdClaim == null)
-        throw new UnauthorizedAccessException("User not found.");
+            if (userIdClaim == null)
+                throw new UnauthorizedAccessException("User not found.");
 
-    return int.Parse(userIdClaim);
-}
+            return int.Parse(userIdClaim);
+        }
     }
 }
