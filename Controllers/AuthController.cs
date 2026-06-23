@@ -1,13 +1,14 @@
 ﻿using FinCure.Data;
 using FinCure.DTOs.AuthDTO;
 using FinCure.Models;
-using Microsoft.AspNetCore.Mvc;
+using FinCure.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.Extensions.Caching.Memory;
 
 
 namespace FinCure.Controllers
@@ -19,12 +20,14 @@ namespace FinCure.Controllers
         private readonly FinCureDBContext _context;
         private readonly IConfiguration _configuration;
         private readonly IMemoryCache _cache;
+        private readonly AuthService _authService;
 
-        public AuthController(FinCureDBContext context, IConfiguration configuration, IMemoryCache cache)
+        public AuthController(FinCureDBContext context, IConfiguration configuration, IMemoryCache cache,AuthService authService )
         {
             _context = context;
             _configuration = configuration;
             _cache = cache;
+            _authService = authService;
         }
 
         // Register a new User
@@ -47,33 +50,33 @@ namespace FinCure.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<String>> Login(LogInDTO dto)
+        public async Task<ActionResult> Login(LogInDTO dto)
         {
-            var user = _context.Users.FirstOrDefault(x => x.Email == dto.Email);
-
-            if (user == null)
+            try
             {
-                return BadRequest("User is Not Available");
-            }
+                // Let the service handle the business logic and token generation
+                var result = await _authService.LoginAsync(dto);
 
-            if(user.Password != dto.Password)
-            {
-                return BadRequest("Wrong Password");
-            }
-            String token = CreateToken(user);
-            return Ok(new
-            {
-                token = token,
-
-                user = new
+                // Return the successful response formatted exactly how Angular expects it
+                return Ok(new
                 {
-                    id = user.UserId,
-                    username = user.UserName,
-                    email = user.Email,
-                    phoneNumber = user.PhoneNumber
-                }
-            });
+                    token = result.Token,
+                    user = new
+                    {
+                        id = result.User.UserId,
+                        username = result.User.UserName,
+                        email = result.User.Email,
+                        phoneNumber = result.User.PhoneNumber
+                    }
+                });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                // If the service throws an error (e.g., "Wrong Password"), catch it and return a 400
+                return BadRequest(ex.Message);
+            }
         }
+    
 
         [Authorize]
         [HttpPost("logout")]

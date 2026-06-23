@@ -4,6 +4,8 @@ namespace FinCure.Models
 {
     public class Users
     {
+        internal string? PasswordHash;
+
         [Key]
         public int UserId { get; set; }
         public String? UserName { get; set; }

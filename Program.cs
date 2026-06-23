@@ -23,7 +23,18 @@ builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 
+
+
 builder.Services.AddControllers();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularUI",
+        policy => policy.WithOrigins("http://localhost:4200") // Your Angular URL
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials());
+});
 
 builder.Services.AddMemoryCache();
 
@@ -57,6 +68,8 @@ builder.Services.AddScoped<IincomeRepository, IncomeRepository>();
 builder.Services.AddScoped<IExpenseRepository, ExpenseRepository>();
 builder.Services.AddScoped<IInvestmentRepository, InvestmentRepository>();
 
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+
 
 builder.Services.AddScoped<InvestmentService>();
 builder.Services.AddScoped<AuthService>();
@@ -89,7 +102,7 @@ builder.Services.AddRateLimiter(options =>
 
 
 var app = builder.Build();
-
+app.UseCors("AllowAngularUI");
 app.UseHttpsRedirection();
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseAuthentication();
