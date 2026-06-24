@@ -67,8 +67,9 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<IincomeRepository, IncomeRepository>();
 builder.Services.AddScoped<IExpenseRepository, ExpenseRepository>();
 builder.Services.AddScoped<IInvestmentRepository, InvestmentRepository>();
-
+builder.Services.AddScoped<ITransactionRepository,TransactionRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IAnalyticsRepository, AnalyticsRepository>();
 
 
 builder.Services.AddScoped<InvestmentService>();
@@ -77,6 +78,8 @@ builder.Services.AddScoped<IncomeService>();
 builder.Services.AddScoped<ExpenseService>();
 builder.Services.AddScoped<SavingsService>();
 builder.Services.AddScoped<RecommendationService>();
+builder.Services.AddScoped<TransactionService>();
+builder.Services.AddScoped<AnalyticsService>();
 
 //builder.Configuration["GoogleSettings:ApiKey"];
 //Gemini API settings

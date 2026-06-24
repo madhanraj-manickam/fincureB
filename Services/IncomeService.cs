@@ -24,7 +24,7 @@ namespace FinCure.Services
                 Amount = dto.Amount,                  // can use mapper to overcome manual assigninig
                 Category = dto.Category,
                
-                Date = DateTime.UtcNow,
+                Date = dto.Date.Date,
                 UserId = userId
             };
 

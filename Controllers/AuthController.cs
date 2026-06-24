@@ -34,15 +34,15 @@ namespace FinCure.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<String>> Register(RegisterDto dto)
         {
-            var user = new Users
-            {
-                UserName = dto.UserName,
-                Password = dto.Password,
-                Email = dto.Email,
-                PhoneNumber = dto.PhoneNumber
-            };
+            //var user = new Users
+            //{
+            //    UserName = dto.UserName,
+            //    PasswordHash = dto.Password,
+            //    Email = dto.Email,
+            //    PhoneNumber = dto.PhoneNumber
+            //};
 
-            await _context.Users.AddAsync(user);
+            await _authService.RegisterAsync(dto);
 
             await _context.SaveChangesAsync();
 

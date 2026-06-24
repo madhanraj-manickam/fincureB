@@ -22,7 +22,7 @@ namespace FinCure.Services
                 Amount = dto.Amount,
                 Category = dto.Category,
                 Description = dto.Description,
-               Date = DateTime.UtcNow,
+                Date = dto.Date.Date,
                 UserId = userId
             };
 
