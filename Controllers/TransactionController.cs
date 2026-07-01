@@ -14,6 +14,7 @@ namespace FinCure.Controllers
 
         public TransactionController(TransactionService transactionService)
         {
+
             _transactionService = transactionService;
         }
 

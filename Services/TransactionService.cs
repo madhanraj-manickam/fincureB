@@ -15,7 +15,7 @@ namespace FinCure.Services
         }
 
         // --- 1. PERIOD AGGREGATION ---
-        public async Task<PeriodSummaryDto> GetPeriodSummaryAsync(int userId, DateTime startDate, DateTime endDate, string periodType)
+        public async Task<PeriodSummaryDto>  GetPeriodSummaryAsync(int userId, DateTime startDate, DateTime endDate, string periodType)
         {
             // Fetch raw data from Repo
             var rawTransactions = await _transactionRepository.GetTransactionsByDateRangeAsync(userId, startDate, endDate);
